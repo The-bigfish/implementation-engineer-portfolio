@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.pnpm-store/
+.env
+.env.*
+*.log
+*.docx
+个人简历提示词.txt

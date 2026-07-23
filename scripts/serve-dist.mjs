@@ -1,0 +1,34 @@
+import { createServer } from "node:http";
+import { readFile } from "node:fs/promises";
+import { extname, join, normalize } from "node:path";
+
+const root = join(process.cwd(), "dist");
+const port = Number(process.env.PORT || 4173);
+
+const mime = {
+  ".html": "text/html; charset=utf-8",
+  ".js": "text/javascript; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
+  ".svg": "image/svg+xml",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".webp": "image/webp"
+};
+
+createServer(async (req, res) => {
+  try {
+    const url = new URL(req.url || "/", `http://${req.headers.host}`);
+    const safePath = normalize(decodeURIComponent(url.pathname)).replace(/^(\.\.[/\\])+/, "");
+    const filePath = join(root, safePath === "/" ? "index.html" : safePath);
+    const data = await readFile(filePath);
+    res.writeHead(200, { "content-type": mime[extname(filePath)] || "application/octet-stream" });
+    res.end(data);
+  } catch {
+    const fallback = await readFile(join(root, "index.html"));
+    res.writeHead(200, { "content-type": mime[".html"] });
+    res.end(fallback);
+  }
+}).listen(port, "127.0.0.1", () => {
+  console.log(`Preview running at http://127.0.0.1:${port}/`);
+});
