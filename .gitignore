@@ -6,3 +6,4 @@ dist/
 *.log
 *.docx
 个人简历提示词.txt
+deploy-gh-pages/
